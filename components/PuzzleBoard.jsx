@@ -16,34 +16,34 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
       const pieceHeight = height / gridSize;
 
       splitImage(imageSrc, gridSize).then((sliced) => {
-        const spacing = 10;
-        const margin = 40;
+        const areaMargin = 60;
         const pieces = [];
 
-        sliced.forEach((piece, i) => {
+        sliced.forEach((piece) => {
           const targetX = (piece.correctIndex % gridSize) * pieceWidth;
           const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
 
-          let x = 0, y = 0;
-          const section = i % 4;
-          const order = Math.floor(i / 4);
+          const zones = ['top', 'bottom', 'left', 'right'];
+          const zone = zones[Math.floor(Math.random() * zones.length)];
 
-          switch (section) {
-            case 0: // top
-              x = order * (pieceWidth + spacing);
-              y = -pieceHeight - margin;
+          let x = 0, y = 0;
+
+          switch (zone) {
+            case 'top':
+              x = Math.random() * (width - pieceWidth);
+              y = -pieceHeight - Math.random() * areaMargin;
               break;
-            case 1: // right
-              x = width + margin;
-              y = order * (pieceHeight + spacing);
+            case 'bottom':
+              x = Math.random() * (width - pieceWidth);
+              y = height + Math.random() * areaMargin;
               break;
-            case 2: // bottom
-              x = order * (pieceWidth + spacing);
-              y = height + margin;
+            case 'left':
+              x = -pieceWidth - Math.random() * areaMargin;
+              y = Math.random() * (height - pieceHeight);
               break;
-            case 3: // left
-              x = -pieceWidth - margin;
-              y = order * (pieceHeight + spacing);
+            case 'right':
+              x = width + Math.random() * areaMargin;
+              y = Math.random() * (height - pieceHeight);
               break;
           }
 
@@ -92,8 +92,18 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   const boardHeight = pieces[0]?.height * gridSize || 0;
 
   return (
-    <div style={{ textAlign: 'center', position: 'relative', height: '100vh' }}>
-      <h3>{allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}</h3>
+    <div
+      style={{
+        textAlign: 'center',
+        position: 'relative',
+        height: '100vh',
+        overflow: 'hidden',
+        background: '#7a9ba5', // fond doux
+      }}
+    >
+      <h3 style={{ marginTop: '1rem' }}>
+        {allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}
+      </h3>
 
       <div
         ref={containerRef}
@@ -101,9 +111,9 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
           position: 'relative',
           width: boardWidth,
           height: boardHeight,
-          border: '2px solid #333',
           margin: 'auto',
-          background: '#ccc',
+          border: '2px solid #333',
+          backgroundColor: '#ccc',
         }}
       >
         {pieces.map((piece) => (
