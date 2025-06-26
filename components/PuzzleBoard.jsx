@@ -7,77 +7,80 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    const img = new Image();
-    img.src = imageSrc;
-    img.onload = () => {
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+  const img = new Image();
+  img.src = imageSrc;
+  img.onload = () => {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
-      const maxBoardWidth = viewportWidth * 0.6;
-      const maxBoardHeight = viewportHeight * 0.8;
+    const maxBoardWidth = viewportWidth * 0.6;
+    const maxBoardHeight = viewportHeight * 0.8;
 
-      const scale = Math.min(maxBoardWidth / img.width, maxBoardHeight / img.height, 1);
+    const scale = Math.min(maxBoardWidth / img.width, maxBoardHeight / img.height, 1);
 
-      const boardWidth = img.width * scale;
-      const boardHeight = img.height * scale;
-      const pieceWidth = boardWidth / gridSize;
-      const pieceHeight = boardHeight / gridSize;
+    const boardWidth = img.width * scale;
+    const boardHeight = img.height * scale;
+    const pieceWidth = boardWidth / gridSize;
+    const pieceHeight = boardHeight / gridSize;
 
-      splitImage(imageSrc, gridSize).then((sliced) => {
-        const marginX = 10;
-        const boardX = (viewportWidth - boardWidth) / 2;
-        const boardY = (viewportHeight - boardHeight) / 2;
+    splitImage(imageSrc, gridSize).then((sliced) => {
+      const marginX = 10;
 
-        const left = [];
-        const right = [];
+      const totalWidth = boardWidth + pieceWidth * 2 + marginX * 2;
+      const offsetGlobalX = (viewportWidth - totalWidth) / 2;
+      const boardX = offsetGlobalX + pieceWidth + marginX;
+      const boardY = (viewportHeight - boardHeight) / 2;
 
-        // Répartition alternée entre gauche et droite
-        sliced.forEach((piece, i) => {
-          if (i % 2 === 0) {
-            left.push(piece);
-          } else {
-            right.push(piece);
-          }
-        });
+      const left = [];
+      const right = [];
 
-        const maxPieces = Math.max(left.length, right.length);
-        const availableHeight = boardHeight - pieceHeight;
-        const spacing = availableHeight / Math.max(maxPieces - 1, 1);
-
-        const pieces = [];
-
-        const distribute = (list, side) => {
-          list.forEach((piece, i) => {
-            const targetX = boardX + (piece.correctIndex % gridSize) * pieceWidth;
-            const targetY = boardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
-
-            const x =
-              side === 'left'
-                ? boardX - pieceWidth - marginX
-                : boardX + boardWidth + marginX;
-
-            const y = boardY + i * spacing;
-
-            pieces.push({
-              ...piece,
-              width: pieceWidth,
-              height: pieceHeight,
-              x,
-              y,
-              targetX,
-              targetY,
-              locked: false,
-            });
-          });
-        };
-
-        distribute(left, 'left');
-        distribute(right, 'right');
-
-        setPieces(pieces);
+      sliced.forEach((piece, i) => {
+        if (i % 2 === 0) {
+          left.push(piece);
+        } else {
+          right.push(piece);
+        }
       });
-    };
-  }, [imageSrc, gridSize]);
+
+      const maxPieces = Math.max(left.length, right.length);
+      const availableHeight = boardHeight - pieceHeight;
+      const spacing = availableHeight / Math.max(maxPieces - 1, 1);
+
+      const pieces = [];
+
+      const distribute = (list, side) => {
+        list.forEach((piece, i) => {
+          const targetX = boardX + (piece.correctIndex % gridSize) * pieceWidth;
+          const targetY = boardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+
+          const x =
+            side === 'left'
+              ? boardX - pieceWidth - marginX
+              : boardX + boardWidth + marginX;
+
+          const y = boardY + i * spacing;
+
+          pieces.push({
+            ...piece,
+            width: pieceWidth,
+            height: pieceHeight,
+            x,
+            y,
+            targetX,
+            targetY,
+            locked: false,
+          });
+        });
+      };
+
+      distribute(left, 'left');
+      distribute(right, 'right');
+
+      setPieces(pieces);
+    });
+  };
+}, [imageSrc, gridSize]);
+
 
   const handleDragEnd = (id, x, y) => {
     setPieces((prev) =>
