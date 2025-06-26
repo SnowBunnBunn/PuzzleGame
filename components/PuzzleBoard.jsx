@@ -140,6 +140,26 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         }}
       />
 
+
+      
+        {/* Grille visible pour debug */}
+        {pieces.map((p, i) => (
+        <div
+            key={`grid-${i}`}
+            style={{
+            position: 'absolute',
+            width: `${p.width}px`,
+            height: `${p.height}px`,
+            left: `${p.targetX}px`,
+            top: `${p.targetY}px`,
+            border: '1px dashed red',
+            boxSizing: 'border-box',
+            pointerEvents: 'none',
+            zIndex: 1,
+            }}
+        />
+        ))}
+
       {pieces.map((piece) => (
         <PuzzlePiece
           key={piece.id}
