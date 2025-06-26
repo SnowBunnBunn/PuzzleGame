@@ -93,13 +93,7 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
 
   return (
     <div
-      style={{
-        textAlign: 'center',
-        position: 'relative',
-        height: '100vh',
-        overflow: 'hidden',
-        background: '#7a9ba5', // fond doux
-      }}
+
     >
       <h3 style={{ marginTop: '1rem' }}>
         {allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}
