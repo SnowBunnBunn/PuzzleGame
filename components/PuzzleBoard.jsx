@@ -5,36 +5,56 @@ import { splitImage } from '../utils/splitImage';
 export default function PuzzleBoard({ imageSrc, gridSize }) {
   const [pieces, setPieces] = useState([]);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [draggedIndex, setDraggedIndex] = useState(null);
 
   useEffect(() => {
-    // Charger les dimensions réelles de l'image
     const img = new Image();
     img.src = imageSrc;
     img.onload = () => {
       setImageSize({ width: img.width, height: img.height });
-      splitImage(imageSrc, gridSize).then(setPieces);
+      splitImage(imageSrc, gridSize).then((sliced) => {
+        const piecesWithLock = sliced.map((piece, idx) => ({
+          ...piece,
+          locked: false,
+        }));
+        setPieces(piecesWithLock);
+      });
     };
   }, [imageSrc, gridSize]);
 
-  const handlePieceClick = (index) => {
-    if (selectedIndex === null) {
-      setSelectedIndex(index);
-    } else {
-      const newPieces = [...pieces];
-      [newPieces[selectedIndex], newPieces[index]] = [newPieces[index], newPieces[selectedIndex]];
-      setPieces(newPieces);
-      setSelectedIndex(null);
-    }
-  };
-
-  const isCompleted = pieces.every((piece, index) => piece.correctIndex === index);
   const pieceWidth = imageSize.width / gridSize;
   const pieceHeight = imageSize.height / gridSize;
 
+  const handleDrop = (targetIndex) => {
+    if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+    const newPieces = [...pieces];
+
+    // Échange seulement si les deux pièces ne sont pas verrouillées
+    if (newPieces[draggedIndex].locked || newPieces[targetIndex].locked) return;
+
+    [newPieces[draggedIndex], newPieces[targetIndex]] = [
+      newPieces[targetIndex],
+      newPieces[draggedIndex],
+    ];
+
+    // Vérifie si les deux pièces sont maintenant bien placées
+    [draggedIndex, targetIndex].forEach((i) => {
+      const piece = newPieces[i];
+      if (piece.correctIndex === i) {
+        piece.locked = true;
+      }
+    });
+
+    setPieces(newPieces);
+    setDraggedIndex(null);
+  };
+
+  const isCompleted = pieces.every((p, i) => p.correctIndex === i);
+
   return (
     <div style={{ textAlign: 'center' }}>
-      <h3>{isCompleted ? '🎉 Puzzle terminé !' : 'Clique sur deux pièces pour les échanger.'}</h3>
+      <h3>{isCompleted ? '🎉 Puzzle terminé !' : 'Glissez les pièces au bon endroit.'}</h3>
       <div
         style={{
           display: 'grid',
@@ -44,22 +64,27 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
           height: `${imageSize.height}px`,
           margin: 'auto',
           border: '2px solid #333',
-          background: '#000',
         }}
       >
         {pieces.map((piece, index) => (
           <div
             key={index}
-            onClick={() => handlePieceClick(index)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => handleDrop(index)}
             style={{
               width: `${pieceWidth}px`,
               height: `${pieceHeight}px`,
-              border: selectedIndex === index ? '2px solid red' : '1px solid #222',
+              border: piece.locked ? '2px solid green' : '1px solid #222',
               boxSizing: 'border-box',
               overflow: 'hidden',
             }}
           >
-            <PuzzlePiece image={piece.image} />
+            <PuzzlePiece
+              image={piece.image}
+              draggable={!piece.locked}
+              onDragStart={() => setDraggedIndex(index)}
+              locked={piece.locked}
+            />
           </div>
         ))}
       </div>
