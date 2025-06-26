@@ -1,91 +1,80 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import PuzzlePiece from './PuzzlePiece';
 import { splitImage } from '../utils/splitImage';
 
 export default function PuzzleBoard({ imageSrc, gridSize }) {
   const [pieces, setPieces] = useState([]);
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-  const [draggedIndex, setDraggedIndex] = useState(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const img = new Image();
     img.src = imageSrc;
     img.onload = () => {
-      setImageSize({ width: img.width, height: img.height });
+      const { width, height } = img;
       splitImage(imageSrc, gridSize).then((sliced) => {
-        const piecesWithLock = sliced.map((piece, idx) => ({
-          ...piece,
-          locked: false,
-        }));
-        setPieces(piecesWithLock);
+        const randomized = sliced.map((piece, index) => {
+          const pieceWidth = width / gridSize;
+          const pieceHeight = height / gridSize;
+
+          return {
+            ...piece,
+            width: pieceWidth,
+            height: pieceHeight,
+            x: width + 30 + Math.random() * 300, // hors du board à droite
+            y: 50 + Math.random() * (height - pieceHeight),
+            targetX: (piece.correctIndex % gridSize) * pieceWidth,
+            targetY: Math.floor(piece.correctIndex / gridSize) * pieceHeight,
+            locked: false,
+          };
+        });
+        setPieces(randomized);
       });
     };
   }, [imageSrc, gridSize]);
 
-  const pieceWidth = imageSize.width / gridSize;
-  const pieceHeight = imageSize.height / gridSize;
+  const handleDragEnd = (id, x, y) => {
+    setPieces((prev) =>
+      prev.map((p) => {
+        if (p.id !== id || p.locked) return p;
 
-  const handleDrop = (targetIndex) => {
-    if (draggedIndex === null || draggedIndex === targetIndex) return;
+        const dx = Math.abs(x - p.targetX);
+        const dy = Math.abs(y - p.targetY);
+        const tolerance = 15;
 
-    const newPieces = [...pieces];
+        if (dx <= tolerance && dy <= tolerance) {
+          return {
+            ...p,
+            x: p.targetX,
+            y: p.targetY,
+            locked: true,
+          };
+        }
 
-    // Échange seulement si les deux pièces ne sont pas verrouillées
-    if (newPieces[draggedIndex].locked || newPieces[targetIndex].locked) return;
-
-    [newPieces[draggedIndex], newPieces[targetIndex]] = [
-      newPieces[targetIndex],
-      newPieces[draggedIndex],
-    ];
-
-    // Vérifie si les deux pièces sont maintenant bien placées
-    [draggedIndex, targetIndex].forEach((i) => {
-      const piece = newPieces[i];
-      if (piece.correctIndex === i) {
-        piece.locked = true;
-      }
-    });
-
-    setPieces(newPieces);
-    setDraggedIndex(null);
+        return { ...p, x, y };
+      })
+    );
   };
 
-  const isCompleted = pieces.every((p, i) => p.correctIndex === i);
+  const allLocked = pieces.length > 0 && pieces.every((p) => p.locked);
+  const boardWidth = pieces[0]?.width * gridSize || 0;
+  const boardHeight = pieces[0]?.height * gridSize || 0;
 
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h3>{isCompleted ? '🎉 Puzzle terminé !' : 'Glissez les pièces au bon endroit.'}</h3>
+    <div style={{ textAlign: 'center', position: 'relative', height: '100vh' }}>
+      <h3>{allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}</h3>
+
       <div
+        ref={containerRef}
         style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${gridSize}, ${pieceWidth}px)`,
-          gridTemplateRows: `repeat(${gridSize}, ${pieceHeight}px)`,
-          width: `${imageSize.width}px`,
-          height: `${imageSize.height}px`,
-          margin: 'auto',
+          position: 'relative',
+          width: boardWidth,
+          height: boardHeight,
           border: '2px solid #333',
+          margin: 'auto',
         }}
       >
-        {pieces.map((piece, index) => (
-          <div
-            key={index}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={() => handleDrop(index)}
-            style={{
-              width: `${pieceWidth}px`,
-              height: `${pieceHeight}px`,
-              border: piece.locked ? '2px solid green' : '1px solid #222',
-              boxSizing: 'border-box',
-              overflow: 'hidden',
-            }}
-          >
-            <PuzzlePiece
-              image={piece.image}
-              draggable={!piece.locked}
-              onDragStart={() => setDraggedIndex(index)}
-              locked={piece.locked}
-            />
-          </div>
+        {pieces.map((piece) => (
+          <PuzzlePiece key={piece.id} piece={piece} onDragEnd={handleDragEnd} />
         ))}
       </div>
     </div>
