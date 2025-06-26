@@ -58,8 +58,9 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
 
         const distribute = (list, side) => {
           list.forEach((piece, i) => {
-            const targetX = calculatedBoardX + (piece.correctIndex % gridSize) * pieceWidth;
-            const targetY = calculatedBoardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+            const targetX = (piece.correctIndex % gridSize) * pieceWidth;
+            const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+
 
             const x =
               side === 'left'
@@ -144,12 +145,12 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         <div
           ref={containerRef}
           style={{
-            position: 'absolute',
+             position: 'relative',
             width: boardWidthState,
             height: boardHeightState,
             left: boardX,
             top: boardY,
-            border: '2px solid #333',
+            border: '2px solid #000',
             backgroundColor: '#ccc',
           }}
         />
