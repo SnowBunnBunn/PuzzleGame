@@ -15,13 +15,13 @@ export default function Home() {
       const contentType = res.headers.get('content-type');
 
       if (!res.ok || !contentType?.startsWith('image/')) {
-        throw new Error('Lien invalide ou le fichier n’est pas une image.');
+        throw new Error('Invalid link or file is not an image.');
       }
 
       const encodedUrl = encodeURIComponent(inputUrl);
       router.push(`/puzzle?image=${encodedUrl}`);
     } catch (err) {
-      setError('Le lien fourni n’est pas valide ou l’image ne peut pas être chargée.');
+      setError('The link provided is invalid or the image cannot be loaded.');
     }
   };
 
@@ -33,11 +33,11 @@ export default function Home() {
           type="text"
           value={inputUrl}
           onChange={(e) => setInputUrl(e.target.value)}
-          placeholder="Entrez l'URL d'une image"
+          placeholder="Enter the URL of an image"
           style={{ padding: '0.5rem', width: '60%' }}
         />
         <button type="submit" style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}>
-          Créer le puzzle
+          Create the puzzle
         </button>
       </form>
       {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}

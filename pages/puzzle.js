@@ -134,7 +134,7 @@ export default function PuzzleBoard() {
       }}
     >
       <h3 style={{ textAlign: 'center', marginTop: '1rem' }}>
-        {allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}
+        {allLocked ? '🎉 Puzzle complete!': 'Slide each piece into the right place.'}
       </h3>
 
       <div
