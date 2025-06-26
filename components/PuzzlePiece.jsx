@@ -1,6 +1,3 @@
-
-import { useRef, useEffect } from 'react';
-
 export default function PuzzlePiece({ piece, onDragEnd }) {
   const pieceRef = useRef(null);
 
@@ -55,7 +52,7 @@ export default function PuzzlePiece({ piece, onDragEnd }) {
         cursor: piece.locked ? 'default' : 'grab',
         border: piece.locked ? '2px solid green' : '1px solid #000',
         boxSizing: 'border-box',
-        zIndex: piece.locked ? 0 : 10,
+        zIndex: piece.locked ? 5 : 10, // 🔧 important !
         pointerEvents: piece.locked ? 'none' : 'auto',
       }}
     />
