@@ -27,7 +27,6 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
       const pieceWidth = boardWidth / gridSize;
       const pieceHeight = boardHeight / gridSize;
 
-      // Espace disponible pour centrer board + pièces à gauche/droite
       const totalWidth = boardWidth + pieceWidth * 2 + 10 * 2;
       const calculatedBoardX = (viewportWidth - totalWidth) / 2 + pieceWidth + 10;
       const calculatedBoardY = (viewportHeight - boardHeight) / 2;
@@ -88,32 +87,27 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   }, [imageSrc, gridSize]);
 
   const handleDragEnd = (id, x, y) => {
-  setPieces((prev) =>
-    prev.map((p) => {
-      if (p.id !== id || p.locked) return p;
+    setPieces((prev) =>
+      prev.map((p) => {
+        if (p.id !== id || p.locked) return p;
 
-      // Snap to grid (pour éviter les pixels flottants)
-      const snappedX = Math.round(x / p.width) * p.width;
-      const snappedY = Math.round(y / p.height) * p.height;
+        const isCorrect =
+          Math.abs(x - p.targetX) < 1 &&
+          Math.abs(y - p.targetY) < 1;
 
-      const isCorrect =
-        Math.abs(snappedX - p.targetX) < 1 &&
-        Math.abs(snappedY - p.targetY) < 1;
+        if (isCorrect) {
+          return {
+            ...p,
+            x: p.targetX,
+            y: p.targetY,
+            locked: true,
+          };
+        }
 
-      if (isCorrect) {
-        return {
-          ...p,
-          x: p.targetX,
-          y: p.targetY,
-          locked: true,
-        };
-      }
-
-      return { ...p, x, y };
-    })
-  );
-};
-
+        return { ...p, x, y };
+      })
+    );
+  };
 
   const allLocked = pieces.length > 0 && pieces.every((p) => p.locked);
 
