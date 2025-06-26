@@ -10,57 +10,54 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
     const img = new Image();
     img.src = imageSrc;
     img.onload = () => {
-      const width = img.width;
-      const height = img.height;
-      const pieceWidth = width / gridSize;
-      const pieceHeight = height / gridSize;
+  const width = img.width;
+  const height = img.height;
+  const pieceWidth = width / gridSize;
+  const pieceHeight = height / gridSize;
 
-      splitImage(imageSrc, gridSize).then((sliced) => {
-        const areaMargin = 60;
-        const pieces = [];
+  splitImage(imageSrc, gridSize).then((sliced) => {
+    const spacing = 6;
+    const marginX = 40;
+    const areaHeight = height;
+    const pieces = [];
 
-        sliced.forEach((piece) => {
-          const targetX = (piece.correctIndex % gridSize) * pieceWidth;
-          const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+    // Diviser en deux moitiés (gauche / droite)
+    const half = Math.ceil(sliced.length / 2);
+    const leftPieces = sliced.slice(0, half);
+    const rightPieces = sliced.slice(half);
 
-          const zones = ['top', 'bottom', 'left', 'right'];
-          const zone = zones[Math.floor(Math.random() * zones.length)];
+    const distribute = (list, side) => {
+      const totalHeight = list.length * (pieceHeight + spacing);
+      const startY = Math.max((areaHeight - totalHeight) / 2, 0);
 
-          let x = 0, y = 0;
+      list.forEach((piece, i) => {
+        const x =
+          side === 'left'
+            ? -pieceWidth - marginX
+            : width + marginX;
+        const y = startY + i * (pieceHeight + spacing);
+        const targetX = (piece.correctIndex % gridSize) * pieceWidth;
+        const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
 
-          switch (zone) {
-            case 'top':
-              x = Math.random() * (width - pieceWidth);
-              y = -pieceHeight - Math.random() * areaMargin;
-              break;
-            case 'bottom':
-              x = Math.random() * (width - pieceWidth);
-              y = height + Math.random() * areaMargin;
-              break;
-            case 'left':
-              x = -pieceWidth - Math.random() * areaMargin;
-              y = Math.random() * (height - pieceHeight);
-              break;
-            case 'right':
-              x = width + Math.random() * areaMargin;
-              y = Math.random() * (height - pieceHeight);
-              break;
-          }
-
-          pieces.push({
-            ...piece,
-            width: pieceWidth,
-            height: pieceHeight,
-            x,
-            y,
-            targetX,
-            targetY,
-            locked: false,
-          });
+        pieces.push({
+          ...piece,
+          width: pieceWidth,
+          height: pieceHeight,
+          x,
+          y,
+          targetX,
+          targetY,
+          locked: false,
         });
-
-        setPieces(pieces);
       });
+    };
+
+    distribute(leftPieces, 'left');
+    distribute(rightPieces, 'right');
+
+    setPieces(pieces);
+  });
+};
     };
   }, [imageSrc, gridSize]);
 
