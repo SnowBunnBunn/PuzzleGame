@@ -16,28 +16,24 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   const pieceHeight = height / gridSize;
 
   splitImage(imageSrc, gridSize).then((sliced) => {
-    const spacing = 6;
     const marginX = 40;
-    const areaHeight = height;
     const pieces = [];
 
-    // Diviser en deux moitiés (gauche / droite)
     const half = Math.ceil(sliced.length / 2);
-    const leftPieces = sliced.slice(0, half);
-    const rightPieces = sliced.slice(half);
+    const left = sliced.slice(0, half);
+    const right = sliced.slice(half);
 
     const distribute = (list, side) => {
-      const totalHeight = list.length * (pieceHeight + spacing);
-      const startY = Math.max((areaHeight - totalHeight) / 2, 0);
+      list.forEach((piece) => {
+        const targetX = (piece.correctIndex % gridSize) * pieceWidth;
+        const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
 
-      list.forEach((piece, i) => {
         const x =
           side === 'left'
             ? -pieceWidth - marginX
             : width + marginX;
-        const y = startY + i * (pieceHeight + spacing);
-        const targetX = (piece.correctIndex % gridSize) * pieceWidth;
-        const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+
+        const y = Math.random() * (height - pieceHeight); // superposition autorisée
 
         pieces.push({
           ...piece,
@@ -52,12 +48,13 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
       });
     };
 
-    distribute(leftPieces, 'left');
-    distribute(rightPieces, 'right');
+    distribute(left, 'left');
+    distribute(right, 'right');
 
     setPieces(pieces);
   });
 };
+
   }, [imageSrc, gridSize]);
 
   const handleDragEnd = (id, x, y) => {
