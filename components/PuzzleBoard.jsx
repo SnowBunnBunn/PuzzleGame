@@ -8,7 +8,8 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   const [boardY, setBoardY] = useState(0);
   const [boardWidthState, setBoardWidthState] = useState(0);
   const [boardHeightState, setBoardHeightState] = useState(0);
-  const containerRef = useRef(null);
+
+  const boardRef = useRef(null);
 
   useEffect(() => {
     const img = new Image();
@@ -21,12 +22,12 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
       const maxBoardHeight = viewportHeight * 0.8;
 
       const scale = Math.min(maxBoardWidth / img.width, maxBoardHeight / img.height, 1);
-
       const boardWidth = img.width * scale;
       const boardHeight = img.height * scale;
       const pieceWidth = boardWidth / gridSize;
       const pieceHeight = boardHeight / gridSize;
 
+      // Espace disponible pour centrer board + pièces à gauche/droite
       const totalWidth = boardWidth + pieceWidth * 2 + 10 * 2;
       const calculatedBoardX = (viewportWidth - totalWidth) / 2 + pieceWidth + 10;
       const calculatedBoardY = (viewportHeight - boardHeight) / 2;
@@ -38,7 +39,6 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
 
       splitImage(imageSrc, gridSize).then((sliced) => {
         const marginX = 10;
-
         const left = [];
         const right = [];
 
@@ -58,16 +58,14 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
 
         const distribute = (list, side) => {
           list.forEach((piece, i) => {
-            const targetX = (piece.correctIndex % gridSize) * pieceWidth;
-            const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+            const targetX = calculatedBoardX + (piece.correctIndex % gridSize) * pieceWidth;
+            const targetY = calculatedBoardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
 
+            const x = side === 'left'
+              ? calculatedBoardX - pieceWidth - marginX
+              : calculatedBoardX + boardWidth + marginX;
 
-            const x =
-              side === 'left'
-                ? calculatedBoardX - pieceWidth - marginX
-                : calculatedBoardX + boardWidth + marginX;
-
-            const y = i * spacing;
+            const y = calculatedBoardY + i * spacing;
 
             allPieces.push({
               ...piece,
@@ -84,7 +82,6 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
 
         distribute(left, 'left');
         distribute(right, 'right');
-
         setPieces(allPieces);
       });
     };
@@ -130,31 +127,21 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
       </h3>
 
       <div
+        ref={boardRef}
         style={{
           position: 'absolute',
-          width: '100%',
-          height: '100%',
-          top: 0,
-          left: 0,
+          left: boardX,
+          top: boardY,
+          width: boardWidthState,
+          height: boardHeightState,
+          border: '2px solid black',
+          background: '#ccc',
         }}
-      >
-        {pieces.map((piece) => (
-          <PuzzlePiece key={piece.id} piece={piece} onDragEnd={handleDragEnd} />
-        ))}
+      />
 
-        <div
-          ref={containerRef}
-          style={{
-             position: 'absolute',
-            width: boardWidthState,
-            height: boardHeightState,
-            left: boardX,
-            top: boardY,
-            border: '2px solid #000',
-            backgroundColor: '#ccc',
-          }}
-        />
-      </div>
+      {pieces.map((piece) => (
+        <PuzzlePiece key={piece.id} piece={piece} onDragEnd={handleDragEnd} />
+      ))}
     </div>
   );
 }
