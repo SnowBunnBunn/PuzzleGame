@@ -81,17 +81,19 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
     };
   }, [imageSrc, gridSize]);
 
-  const handleDragEnd = (id, x, y) => {
+const handleDragEnd = (id, x, y) => {
   setPieces((prev) =>
     prev.map((p) => {
       if (p.id !== id || p.locked) return p;
 
-      // Correction : on ne fait pas de snap visuel
       const dx = Math.abs(x - p.targetX);
       const dy = Math.abs(y - p.targetY);
-      const tolerance = 15;
+      const tolerance = 20; // 🔧 marge autorisée en pixels
 
-      if (dx <= tolerance && dy <= tolerance) {
+      const isCloseEnough = dx <= tolerance && dy <= tolerance;
+
+      if (isCloseEnough) {
+        // ✅ Corrige placement parfaitement sur la grille
         return {
           ...p,
           x: p.targetX,
@@ -100,10 +102,16 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         };
       }
 
-      return { ...p, x, y };
+      // ❌ Pas assez proche : on garde le drag final
+      return {
+        ...p,
+        x,
+        y,
+      };
     })
   );
 };
+
 
 
   const allLocked = pieces.length > 0 && pieces.every((p) => p.locked);
