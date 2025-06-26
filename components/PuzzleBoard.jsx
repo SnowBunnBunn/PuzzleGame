@@ -106,29 +106,39 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   const boardWidth = pieces[0]?.width * gridSize || 0;
   const boardHeight = pieces[0]?.height * gridSize || 0;
 
-  return (
+return (
+  <div
+    style={{
+      width: '100vw',
+      height: '100vh',
+      overflow: 'hidden',
+      position: 'relative',
+      background: '#7a9ba5',
+    }}
+  >
+    <h3 style={{ textAlign: 'center', marginTop: '1rem' }}>
+      {allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}
+    </h3>
+
     <div
       style={{
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        position: 'relative',
-        background: '#7a9ba5',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: boardWidth + 2 * (pieces[0]?.width + 20),
+        height: boardHeight,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
-      <h3 style={{ textAlign: 'center', marginTop: '1rem' }}>
-        {allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}
-      </h3>
-
       <div
         ref={containerRef}
         style={{
           position: 'relative',
           width: boardWidth,
           height: boardHeight,
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
           border: '2px solid #333',
           backgroundColor: '#ccc',
         }}
@@ -138,5 +148,7 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         ))}
       </div>
     </div>
-  );
+  </div>
+);
+
 }
