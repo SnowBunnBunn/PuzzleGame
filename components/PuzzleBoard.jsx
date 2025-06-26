@@ -58,7 +58,6 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
     setPieces(pieces);
   });
 };
-    };
   }, [imageSrc, gridSize]);
 
   const handleDragEnd = (id, x, y) => {
