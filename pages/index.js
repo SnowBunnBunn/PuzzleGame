@@ -1,9 +1,9 @@
-// App.jsx
+// pages/index.js
 import { useState } from 'react';
-import ImageUploader from './components/ImageUploader';
-import PuzzleBoard from './components/PuzzleBoard';
+import ImageUploader from '../components/ImageUploader';
+import PuzzleBoard from '../components/PuzzleBoard';
 
-function App() {
+export default function Home() {
   const [image, setImage] = useState(null);
   const [gridSize, setGridSize] = useState(null);
 
@@ -22,5 +22,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
