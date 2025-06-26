@@ -28,10 +28,9 @@ export default function ImageUploader({ onStart }) {
       <br />
       <label>Nombre de pièces (par côté): </label>
       <select value={gridSize} onChange={(e) => setGridSize(parseInt(e.target.value))}>
-        <option value={3}>3 x 3</option>
-        <option value={4}>4 x 4</option>
-        <option value={5}>5 x 5</option>
-        <option value={6}>6 x 6</option>
+        {Array.from({ length: 10 }, (_, i) => i + 2).map((val) => (
+            <option key={val} value={val}>{val} x {val}</option>
+        ))}
       </select>
       <br />
       <button onClick={handleStartPuzzle} disabled={!selectedImage} style={{ marginTop: '1rem' }}>

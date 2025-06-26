@@ -1,4 +1,3 @@
-// components/PuzzleBoard.jsx
 import { useState, useEffect } from 'react';
 import PuzzlePiece from './PuzzlePiece';
 import { splitImage } from '../utils/splitImage';
@@ -24,8 +23,6 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
 
   const isCompleted = pieces.every((piece, index) => piece.correctIndex === index);
 
-  const size = 100 / gridSize + '%';
-
   return (
     <div style={{ textAlign: 'center' }}>
       <h3>{isCompleted ? '🎉 Puzzle terminé !' : 'Clique sur deux pièces pour les échanger.'}</h3>
@@ -33,10 +30,13 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-          width: '80vmin',
-          height: '80vmin',
+          gap: '1px',
+          width: '90vmin',
+          maxWidth: '90vw',
+          aspectRatio: '1 / 1',
           margin: 'auto',
           border: '2px solid #333',
+          background: '#000',
         }}
       >
         {pieces.map((piece, index) => (
@@ -44,10 +44,11 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
             key={index}
             onClick={() => handlePieceClick(index)}
             style={{
-              width: size,
-              height: size,
-              border: selectedIndex === index ? '2px solid red' : '1px solid #ccc',
+              width: '100%',
+              aspectRatio: '1 / 1',
+              border: selectedIndex === index ? '2px solid red' : '1px solid #222',
               boxSizing: 'border-box',
+              overflow: 'hidden',
             }}
           >
             <PuzzlePiece image={piece.image} />
