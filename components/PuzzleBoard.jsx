@@ -86,15 +86,10 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
     prev.map((p) => {
       if (p.id !== id || p.locked) return p;
 
-      // On arrondit à l'entier pour éviter les petits décimaux
-      const snappedX = Math.round(x);
-      const snappedY = Math.round(y);
-      const targetX = Math.round(p.targetX);
-      const targetY = Math.round(p.targetY);
-
-      const dx = Math.abs(snappedX - targetX);
-      const dy = Math.abs(snappedY - targetY);
-      const tolerance = 10; // Ajuste selon ton ressenti
+      // Correction : on ne fait pas de snap visuel
+      const dx = Math.abs(x - p.targetX);
+      const dy = Math.abs(y - p.targetY);
+      const tolerance = 15;
 
       if (dx <= tolerance && dy <= tolerance) {
         return {
@@ -105,7 +100,7 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         };
       }
 
-      return { ...p, x: snappedX, y: snappedY };
+      return { ...p, x, y };
     })
   );
 };
