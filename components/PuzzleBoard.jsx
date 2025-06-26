@@ -28,30 +28,35 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         const boardX = (viewportWidth - boardWidth) / 2;
         const boardY = (viewportHeight - boardHeight) / 2;
 
-        const pieces = [];
         const left = [];
         const right = [];
 
+        // Répartition alternée entre gauche et droite
         sliced.forEach((piece, i) => {
-        if (Math.random() < 0.5) {
+          if (i % 2 === 0) {
             left.push(piece);
-        } else {
+          } else {
             right.push(piece);
-        }
+          }
         });
 
+        const maxPieces = Math.max(left.length, right.length);
+        const availableHeight = boardHeight - pieceHeight;
+        const spacing = availableHeight / Math.max(maxPieces - 1, 1);
+
+        const pieces = [];
 
         const distribute = (list, side) => {
-          list.forEach((piece) => {
+          list.forEach((piece, i) => {
             const targetX = boardX + (piece.correctIndex % gridSize) * pieceWidth;
             const targetY = boardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
 
-            const x = side === 'left'
-              ? boardX - pieceWidth - marginX
-              : boardX + boardWidth + marginX;
+            const x =
+              side === 'left'
+                ? boardX - pieceWidth - marginX
+                : boardX + boardWidth + marginX;
 
-            // Y = random dans la hauteur visible
-            const y = boardY + Math.random() * (boardHeight - pieceHeight);
+            const y = boardY + i * spacing;
 
             pieces.push({
               ...piece,
@@ -111,7 +116,7 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         background: '#7a9ba5',
       }}
     >
-      <h3 style={{ marginTop: '1rem' }}>
+      <h3 style={{ textAlign: 'center', marginTop: '1rem' }}>
         {allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}
       </h3>
 
