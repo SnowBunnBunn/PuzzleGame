@@ -82,27 +82,34 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   }, [imageSrc, gridSize]);
 
   const handleDragEnd = (id, x, y) => {
-    setPieces((prev) =>
-      prev.map((p) => {
-        if (p.id !== id || p.locked) return p;
+  setPieces((prev) =>
+    prev.map((p) => {
+      if (p.id !== id || p.locked) return p;
 
-        const dx = Math.abs(x - p.targetX);
-        const dy = Math.abs(y - p.targetY);
-        const tolerance = 20;
+      // On arrondit à l'entier pour éviter les petits décimaux
+      const snappedX = Math.round(x);
+      const snappedY = Math.round(y);
+      const targetX = Math.round(p.targetX);
+      const targetY = Math.round(p.targetY);
 
-        if (dx <= tolerance && dy <= tolerance) {
-          return {
-            ...p,
-            x: p.targetX,
-            y: p.targetY,
-            locked: true,
-          };
-        }
+      const dx = Math.abs(snappedX - targetX);
+      const dy = Math.abs(snappedY - targetY);
+      const tolerance = 10; // Ajuste selon ton ressenti
 
-        return { ...p, x, y };
-      })
-    );
-  };
+      if (dx <= tolerance && dy <= tolerance) {
+        return {
+          ...p,
+          x: p.targetX,
+          y: p.targetY,
+          locked: true,
+        };
+      }
+
+      return { ...p, x: snappedX, y: snappedY };
+    })
+  );
+};
+
 
   const allLocked = pieces.length > 0 && pieces.every((p) => p.locked);
 
