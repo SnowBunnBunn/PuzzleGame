@@ -111,11 +111,8 @@ export default function PuzzleBoard() {
       const updated = prev.map((p) => {
         if (p.id !== id || p.locked) return p;
 
-        const snappedX = Math.round(x / p.width) * p.width;
-        const snappedY = Math.round(y / p.height) * p.height;
-
-        const dx = Math.abs(snappedX - p.targetX);
-        const dy = Math.abs(snappedY - p.targetY);
+        const dx = Math.abs(x - p.targetX);
+        const dy = Math.abs(y - p.targetY);
         const tolerance = 20;
 
         if (dx <= tolerance && dy <= tolerance) {
