@@ -145,7 +145,7 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         <div
           ref={containerRef}
           style={{
-             position: 'relative',
+             position: 'absolute',
             width: boardWidthState,
             height: boardHeightState,
             left: boardX,
