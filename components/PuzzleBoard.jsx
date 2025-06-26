@@ -88,26 +88,27 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
 
   const handleDragEnd = (id, x, y) => {
     setPieces((prev) =>
-      prev.map((p) => {
+        prev.map((p) => {
         if (p.id !== id || p.locked) return p;
 
-        const isCorrect =
-          Math.abs(x - p.targetX) < 1 &&
-          Math.abs(y - p.targetY) < 1;
+        const dx = Math.abs(x - p.targetX);
+        const dy = Math.abs(y - p.targetY);
+        const tolerance = 20; // ← marge de tolérance de 20px
 
-        if (isCorrect) {
-          return {
+        if (dx <= tolerance && dy <= tolerance) {
+            return {
             ...p,
             x: p.targetX,
             y: p.targetY,
             locked: true,
-          };
+            };
         }
 
         return { ...p, x, y };
-      })
+        })
     );
-  };
+};
+
 
   const allLocked = pieces.length > 0 && pieces.every((p) => p.locked);
 
