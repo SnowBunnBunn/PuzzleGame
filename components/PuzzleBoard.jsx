@@ -10,68 +10,58 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
     const img = new Image();
     img.src = imageSrc;
     img.onload = () => {
-  const { width, height } = img;
-  const pieceWidth = width / gridSize;
-  const pieceHeight = height / gridSize;
+      const width = img.width;
+      const height = img.height;
+      const pieceWidth = width / gridSize;
+      const pieceHeight = height / gridSize;
 
-  splitImage(imageSrc, gridSize).then((sliced) => {
-    const positions = [];
+      splitImage(imageSrc, gridSize).then((sliced) => {
+        const spacing = 10;
+        const margin = 40;
+        const pieces = [];
 
-    const margin = 20;
-    const spacing = 10;
+        sliced.forEach((piece, i) => {
+          const targetX = (piece.correctIndex % gridSize) * pieceWidth;
+          const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
 
-    // total number of pieces
-    const total = sliced.length;
+          let x = 0, y = 0;
+          const section = i % 4;
+          const order = Math.floor(i / 4);
 
-    // distribute pieces equally around the 4 sides
-    const perSide = Math.ceil(total / 4);
-    let topCount = 0, bottomCount = 0, leftCount = 0, rightCount = 0;
+          switch (section) {
+            case 0: // top
+              x = order * (pieceWidth + spacing);
+              y = -pieceHeight - margin;
+              break;
+            case 1: // right
+              x = width + margin;
+              y = order * (pieceHeight + spacing);
+              break;
+            case 2: // bottom
+              x = order * (pieceWidth + spacing);
+              y = height + margin;
+              break;
+            case 3: // left
+              x = -pieceWidth - margin;
+              y = order * (pieceHeight + spacing);
+              break;
+          }
 
-    const pieces = sliced.map((piece, index) => {
-      // Target position (correct spot)
-      const targetX = (piece.correctIndex % gridSize) * pieceWidth;
-      const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+          pieces.push({
+            ...piece,
+            width: pieceWidth,
+            height: pieceHeight,
+            x,
+            y,
+            targetX,
+            targetY,
+            locked: false,
+          });
+        });
 
-      let x = 0, y = 0;
-
-      if (topCount < perSide) {
-        // top
-        x = margin + topCount * (pieceWidth + spacing);
-        y = targetY - pieceHeight - spacing - 30;
-        topCount++;
-      } else if (rightCount < perSide) {
-        // right
-        x = width + spacing + 30;
-        y = margin + rightCount * (pieceHeight + spacing);
-        rightCount++;
-      } else if (bottomCount < perSide) {
-        // bottom
-        x = margin + bottomCount * (pieceWidth + spacing);
-        y = height + spacing + 30;
-        bottomCount++;
-      } else {
-        // left
-        x = -pieceWidth - spacing - 30;
-        y = margin + leftCount * (pieceHeight + spacing);
-        leftCount++;
-      }
-
-      return {
-        ...piece,
-        width: pieceWidth,
-        height: pieceHeight,
-        x,
-        y,
-        targetX,
-        targetY,
-        locked: false,
-      };
-    });
-
-    setPieces(pieces);
-  });
-};
-
+        setPieces(pieces);
+      });
+    };
   }, [imageSrc, gridSize]);
 
   const handleDragEnd = (id, x, y) => {
@@ -113,6 +103,7 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
           height: boardHeight,
           border: '2px solid #333',
           margin: 'auto',
+          background: '#ccc',
         }}
       >
         {pieces.map((piece) => (
