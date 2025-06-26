@@ -4,10 +4,17 @@ import { splitImage } from '../utils/splitImage';
 
 export default function PuzzleBoard({ imageSrc, gridSize }) {
   const [pieces, setPieces] = useState([]);
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
-    splitImage(imageSrc, gridSize).then(setPieces);
+    // Charger les dimensions réelles de l'image
+    const img = new Image();
+    img.src = imageSrc;
+    img.onload = () => {
+      setImageSize({ width: img.width, height: img.height });
+      splitImage(imageSrc, gridSize).then(setPieces);
+    };
   }, [imageSrc, gridSize]);
 
   const handlePieceClick = (index) => {
@@ -22,6 +29,8 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   };
 
   const isCompleted = pieces.every((piece, index) => piece.correctIndex === index);
+  const pieceWidth = imageSize.width / gridSize;
+  const pieceHeight = imageSize.height / gridSize;
 
   return (
     <div style={{ textAlign: 'center' }}>
@@ -29,11 +38,10 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-          gap: '1px',
-          width: '90vmin',
-          maxWidth: '90vw',
-          aspectRatio: '1 / 1',
+          gridTemplateColumns: `repeat(${gridSize}, ${pieceWidth}px)`,
+          gridTemplateRows: `repeat(${gridSize}, ${pieceHeight}px)`,
+          width: `${imageSize.width}px`,
+          height: `${imageSize.height}px`,
           margin: 'auto',
           border: '2px solid #333',
           background: '#000',
@@ -44,8 +52,8 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
             key={index}
             onClick={() => handlePieceClick(index)}
             style={{
-              width: '100%',
-              aspectRatio: '1 / 1',
+              width: `${pieceWidth}px`,
+              height: `${pieceHeight}px`,
               border: selectedIndex === index ? '2px solid red' : '1px solid #222',
               boxSizing: 'border-box',
               overflow: 'hidden',
