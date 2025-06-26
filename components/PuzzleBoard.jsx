@@ -29,9 +29,17 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         const boardY = (viewportHeight - boardHeight) / 2;
 
         const pieces = [];
-        const half = Math.ceil(sliced.length / 2);
-        const left = sliced.slice(0, half);
-        const right = sliced.slice(half);
+        const left = [];
+        const right = [];
+
+        sliced.forEach((piece, i) => {
+        if (Math.random() < 0.5) {
+            left.push(piece);
+        } else {
+            right.push(piece);
+        }
+        });
+
 
         const distribute = (list, side) => {
           list.forEach((piece) => {
