@@ -42,7 +42,7 @@ export default function Home() {
           <input
             type="number"
             min={2}
-            max={10}
+            max={13}
             value={gridSize}
             onChange={(e) => setGridSize(parseInt(e.target.value))}
             style={{ width: '60px', textAlign: 'center' }}
