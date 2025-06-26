@@ -1,3 +1,6 @@
+import { useRef, useEffect } from 'react';
+
+
 export default function PuzzlePiece({ piece, onDragEnd }) {
   const pieceRef = useRef(null);
 
