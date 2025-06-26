@@ -128,32 +128,33 @@ return (
     <div
       style={{
         position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: boardWidth + 2 * (pieces[0]?.width + 20),
-        height: boardHeight,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+        top: 0,
+        left: 0,
       }}
     >
+      {/* Pièces libres */}
+      {pieces.map((piece) => (
+        <PuzzlePiece key={piece.id} piece={piece} onDragEnd={handleDragEnd} />
+      ))}
+
+      {/* Plateau centré */}
       <div
         ref={containerRef}
         style={{
-          position: 'relative',
+          position: 'absolute',
           width: boardWidth,
           height: boardHeight,
+          left: boardX,
+          top: boardY,
           border: '2px solid #333',
           backgroundColor: '#ccc',
         }}
-      >
-        {pieces.map((piece) => (
-          <PuzzlePiece key={piece.id} piece={piece} onDragEnd={handleDragEnd} />
-        ))}
-      </div>
+      />
     </div>
   </div>
 );
+
 
 }
