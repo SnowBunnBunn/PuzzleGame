@@ -8,7 +8,6 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
   const [boardY, setBoardY] = useState(0);
   const [boardWidthState, setBoardWidthState] = useState(0);
   const [boardHeightState, setBoardHeightState] = useState(0);
-
   const boardRef = useRef(null);
 
   useEffect(() => {
@@ -42,17 +41,13 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
         const right = [];
 
         sliced.forEach((piece, i) => {
-          if (i % 2 === 0) {
-            left.push(piece);
-          } else {
-            right.push(piece);
-          }
+          if (i % 2 === 0) left.push(piece);
+          else right.push(piece);
         });
 
         const maxPieces = Math.max(left.length, right.length);
         const availableHeight = boardHeight - pieceHeight;
         const spacing = availableHeight / Math.max(maxPieces - 1, 1);
-
         const allPieces = [];
 
         const distribute = (list, side) => {
@@ -88,27 +83,26 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
 
   const handleDragEnd = (id, x, y) => {
     setPieces((prev) =>
-        prev.map((p) => {
+      prev.map((p) => {
         if (p.id !== id || p.locked) return p;
 
         const dx = Math.abs(x - p.targetX);
         const dy = Math.abs(y - p.targetY);
-        const tolerance = 20; // ← marge de tolérance de 20px
+        const tolerance = 20;
 
         if (dx <= tolerance && dy <= tolerance) {
-            return {
+          return {
             ...p,
             x: p.targetX,
             y: p.targetY,
             locked: true,
-            };
+          };
         }
 
         return { ...p, x, y };
-        })
+      })
     );
-};
-
+  };
 
   const allLocked = pieces.length > 0 && pieces.every((p) => p.locked);
 
@@ -140,7 +134,12 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
       />
 
       {pieces.map((piece) => (
-        <PuzzlePiece key={piece.id} piece={piece} onDragEnd={handleDragEnd} />
+        <PuzzlePiece
+          key={piece.id}
+          piece={piece}
+          onDragEnd={handleDragEnd}
+          allLocked={allLocked}
+        />
       ))}
     </div>
   );
