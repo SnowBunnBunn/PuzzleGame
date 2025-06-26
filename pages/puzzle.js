@@ -16,82 +16,94 @@ export default function PuzzleBoard() {
 
   const gridSize = 3;
 
+  const loadImageAsDataUrl = async (url) => {
+    const response = await fetch(url, { mode: 'cors' });
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  };
+
   useEffect(() => {
     if (!imageSrc) return;
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = imageSrc;
-    img.onload = () => {
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+    loadImageAsDataUrl(imageSrc).then((dataUrl) => {
+      const img = new Image();
+      img.src = dataUrl;
 
-      const maxBoardWidth = viewportWidth * 0.6;
-      const maxBoardHeight = viewportHeight * 0.8;
+      img.onload = () => {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
 
-      const scale = Math.min(maxBoardWidth / img.width, maxBoardHeight / img.height, 1);
-      const boardWidth = img.width * scale;
-      const boardHeight = img.height * scale;
-      const pieceWidth = boardWidth / gridSize;
-      const pieceHeight = boardHeight / gridSize;
+        const maxBoardWidth = viewportWidth * 0.6;
+        const maxBoardHeight = viewportHeight * 0.8;
 
-      const totalWidth = boardWidth + pieceWidth * 2 + 10 * 2;
-      const calculatedBoardX = (viewportWidth - totalWidth) / 2 + pieceWidth + 10;
-      const calculatedBoardY = (viewportHeight - boardHeight) / 2;
+        const scale = Math.min(maxBoardWidth / img.width, maxBoardHeight / img.height, 1);
+        const boardWidth = img.width * scale;
+        const boardHeight = img.height * scale;
+        const pieceWidth = boardWidth / gridSize;
+        const pieceHeight = boardHeight / gridSize;
 
-      setBoardX(calculatedBoardX);
-      setBoardY(calculatedBoardY);
-      setBoardWidthState(boardWidth);
-      setBoardHeightState(boardHeight);
+        const totalWidth = boardWidth + pieceWidth * 2 + 10 * 2;
+        const calculatedBoardX = (viewportWidth - totalWidth) / 2 + pieceWidth + 10;
+        const calculatedBoardY = (viewportHeight - boardHeight) / 2;
 
-      splitImage(imageSrc, gridSize).then((sliced) => {
-        const marginX = 10;
-        const left = [];
-        const right = [];
+        setBoardX(calculatedBoardX);
+        setBoardY(calculatedBoardY);
+        setBoardWidthState(boardWidth);
+        setBoardHeightState(boardHeight);
 
-        sliced.forEach((piece, i) => {
-          if (i % 2 === 0) {
-            left.push(piece);
-          } else {
-            right.push(piece);
-          }
-        });
+        splitImage(dataUrl, gridSize).then((sliced) => {
+          const marginX = 10;
+          const left = [];
+          const right = [];
 
-        const maxPieces = Math.max(left.length, right.length);
-        const availableHeight = boardHeight - pieceHeight;
-        const spacing = availableHeight / Math.max(maxPieces - 1, 1);
-
-        const allPieces = [];
-
-        const distribute = (list, side) => {
-          list.forEach((piece, i) => {
-            const targetX = calculatedBoardX + (piece.correctIndex % gridSize) * pieceWidth;
-            const targetY = calculatedBoardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
-
-            const x = side === 'left'
-              ? calculatedBoardX - pieceWidth - marginX
-              : calculatedBoardX + boardWidth + marginX;
-
-            const y = calculatedBoardY + i * spacing;
-
-            allPieces.push({
-              ...piece,
-              width: pieceWidth,
-              height: pieceHeight,
-              x,
-              y,
-              targetX,
-              targetY,
-              locked: false,
-            });
+          sliced.forEach((piece, i) => {
+            if (i % 2 === 0) {
+              left.push(piece);
+            } else {
+              right.push(piece);
+            }
           });
-        };
 
-        distribute(left, 'left');
-        distribute(right, 'right');
-        setPieces(allPieces);
-      });
-    };
+          const maxPieces = Math.max(left.length, right.length);
+          const availableHeight = boardHeight - pieceHeight;
+          const spacing = availableHeight / Math.max(maxPieces - 1, 1);
+
+          const allPieces = [];
+
+          const distribute = (list, side) => {
+            list.forEach((piece, i) => {
+              const targetX = calculatedBoardX + (piece.correctIndex % gridSize) * pieceWidth;
+              const targetY = calculatedBoardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+
+              const x = side === 'left'
+                ? calculatedBoardX - pieceWidth - marginX
+                : calculatedBoardX + boardWidth + marginX;
+
+              const y = calculatedBoardY + i * spacing;
+
+              allPieces.push({
+                ...piece,
+                width: pieceWidth,
+                height: pieceHeight,
+                x,
+                y,
+                targetX,
+                targetY,
+                locked: false,
+              });
+            });
+          };
+
+          distribute(left, 'left');
+          distribute(right, 'right');
+          setPieces(allPieces);
+        });
+      };
+    });
   }, [imageSrc]);
 
   const handleDragEnd = (id, x, y) => {
