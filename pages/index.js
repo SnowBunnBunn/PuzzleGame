@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 export default function Home() {
   const [inputUrl, setInputUrl] = useState('');
+  const [gridSize, setGridSize] = useState(3); // Valeur par défaut
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -19,7 +20,7 @@ export default function Home() {
       }
 
       const encodedUrl = encodeURIComponent(inputUrl);
-      router.push(`/puzzle?image=${encodedUrl}`);
+      router.push(`/puzzle?image=${encodedUrl}&grid=${gridSize}`);
     } catch (err) {
       setError('The link provided is invalid or the image cannot be loaded.');
     }
@@ -27,7 +28,7 @@ export default function Home() {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-      <h1>🧩 Générateur de Puzzle</h1>
+      <h1>🧩 Puzzle Generator</h1>
       <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
         <input
           type="text"
@@ -36,7 +37,18 @@ export default function Home() {
           placeholder="Enter the URL of an image"
           style={{ padding: '0.5rem', width: '60%' }}
         />
-        <button type="submit" style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}>
+        <div style={{ marginTop: '1rem' }}>
+          <label style={{ marginRight: '1rem' }}>Grid size (e.g. 3 = 3x3)</label>
+          <input
+            type="number"
+            min={2}
+            max={10}
+            value={gridSize}
+            onChange={(e) => setGridSize(parseInt(e.target.value))}
+            style={{ width: '60px', textAlign: 'center' }}
+          />
+        </div>
+        <button type="submit" style={{ marginTop: '1.5rem', padding: '0.5rem 1rem' }}>
           Create the puzzle
         </button>
       </form>

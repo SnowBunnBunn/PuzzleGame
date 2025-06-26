@@ -5,7 +5,9 @@ import { splitImage } from '../utils/splitImage';
 
 export default function PuzzleBoard() {
   const router = useRouter();
-  const { image: imageSrc } = router.query;
+  const { image: imageSrc, grid = '3' } = router.query;
+  const gridSize = parseInt(grid);
+
   const [pieces, setPieces] = useState([]);
   const [boardX, setBoardX] = useState(0);
   const [boardY, setBoardY] = useState(0);
@@ -13,8 +15,6 @@ export default function PuzzleBoard() {
   const [boardHeightState, setBoardHeightState] = useState(0);
   const [allLocked, setAllLocked] = useState(false);
   const boardRef = useRef(null);
-
-  const gridSize = 3;
 
   const loadImageAsDataUrl = async (url) => {
     const response = await fetch(url, { mode: 'cors' });
@@ -61,13 +61,17 @@ export default function PuzzleBoard() {
           const right = [];
 
           sliced.forEach((piece, i) => {
-            if (i % 2 === 0) left.push(piece);
-            else right.push(piece);
+            if (i % 2 === 0) {
+              left.push(piece);
+            } else {
+              right.push(piece);
+            }
           });
 
           const maxPieces = Math.max(left.length, right.length);
           const availableHeight = boardHeight - pieceHeight;
           const spacing = availableHeight / Math.max(maxPieces - 1, 1);
+
           const allPieces = [];
 
           const distribute = (list, side) => {
@@ -100,22 +104,30 @@ export default function PuzzleBoard() {
         });
       };
     });
-  }, [imageSrc]);
+  }, [imageSrc, gridSize]);
 
   const handleDragEnd = (id, x, y) => {
     setPieces((prev) => {
       const updated = prev.map((p) => {
         if (p.id !== id || p.locked) return p;
 
-        const dx = Math.abs(x - p.targetX);
-        const dy = Math.abs(y - p.targetY);
+        const snappedX = Math.round(x / p.width) * p.width;
+        const snappedY = Math.round(y / p.height) * p.height;
+
+        const dx = Math.abs(snappedX - p.targetX);
+        const dy = Math.abs(snappedY - p.targetY);
         const tolerance = 20;
 
-        const isClose = dx <= tolerance && dy <= tolerance;
+        if (dx <= tolerance && dy <= tolerance) {
+          return {
+            ...p,
+            x: p.targetX,
+            y: p.targetY,
+            locked: true,
+          };
+        }
 
-        return isClose
-          ? { ...p, x: p.targetX, y: p.targetY, locked: true }
-          : { ...p, x, y };
+        return { ...p, x, y };
       });
 
       setAllLocked(updated.every((p) => p.locked));
@@ -134,7 +146,7 @@ export default function PuzzleBoard() {
       }}
     >
       <h3 style={{ textAlign: 'center', marginTop: '1rem' }}>
-        {allLocked ? '🎉 Puzzle complete!': 'Slide each piece into the right place.'}
+        {allLocked ? '🎉 Puzzle terminé !' : 'Glisse chaque pièce au bon endroit.'}
       </h3>
 
       <div
@@ -150,31 +162,8 @@ export default function PuzzleBoard() {
         }}
       />
 
-      {/* Grille rouge pour debug */}
-      {pieces.map((p, i) => (
-        <div
-          key={`grid-${i}`}
-          style={{
-            position: 'absolute',
-            width: `${p.width}px`,
-            height: `${p.height}px`,
-            left: `${p.targetX}px`,
-            top: `${p.targetY}px`,
-            border: '1px dashed red',
-            pointerEvents: 'none',
-            boxSizing: 'border-box',
-            zIndex: 1,
-          }}
-        />
-      ))}
-
       {pieces.map((piece) => (
-        <PuzzlePiece
-          key={piece.id}
-          piece={piece}
-          onDragEnd={handleDragEnd}
-          allLocked={allLocked}
-        />
+        <PuzzlePiece key={piece.id} piece={piece} onDragEnd={handleDragEnd} />
       ))}
     </div>
   );
