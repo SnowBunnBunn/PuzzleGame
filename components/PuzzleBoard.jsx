@@ -49,29 +49,31 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
       const pieces = [];
 
       const distribute = (list, side) => {
-        list.forEach((piece, i) => {
-          const targetX = boardX + (piece.correctIndex % gridSize) * pieceWidth;
-          const targetY = boardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+  list.forEach((piece, i) => {
+    const targetX = boardX + (piece.correctIndex % gridSize) * pieceWidth;
+    const targetY = boardY + Math.floor(piece.correctIndex / gridSize) * pieceHeight;
 
-          const x =
-            side === 'left'
-              ? boardX - pieceWidth - marginX
-              : boardX + boardWidth + marginX;
+    const x =
+      side === 'left'
+        ? boardX - pieceWidth - marginX
+        : boardX + boardWidth + marginX;
 
-          const y = boardY + i * spacing;
+    // Position verticale relative à 0, pas à boardY
+    const y = i * spacing;
 
-          pieces.push({
-            ...piece,
-            width: pieceWidth,
-            height: pieceHeight,
-            x,
-            y,
-            targetX,
-            targetY,
-            locked: false,
-          });
-        });
-      };
+    pieces.push({
+      ...piece,
+      width: pieceWidth,
+      height: pieceHeight,
+      x,
+      y,
+      targetX,
+      targetY,
+      locked: false,
+    });
+  });
+};
+
 
       distribute(left, 'left');
       distribute(right, 'right');
