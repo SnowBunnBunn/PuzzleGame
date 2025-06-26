@@ -10,26 +10,68 @@ export default function PuzzleBoard({ imageSrc, gridSize }) {
     const img = new Image();
     img.src = imageSrc;
     img.onload = () => {
-      const { width, height } = img;
-      splitImage(imageSrc, gridSize).then((sliced) => {
-        const randomized = sliced.map((piece, index) => {
-          const pieceWidth = width / gridSize;
-          const pieceHeight = height / gridSize;
+  const { width, height } = img;
+  const pieceWidth = width / gridSize;
+  const pieceHeight = height / gridSize;
 
-          return {
-            ...piece,
-            width: pieceWidth,
-            height: pieceHeight,
-            x: width + 30 + Math.random() * 300, // hors du board à droite
-            y: 50 + Math.random() * (height - pieceHeight),
-            targetX: (piece.correctIndex % gridSize) * pieceWidth,
-            targetY: Math.floor(piece.correctIndex / gridSize) * pieceHeight,
-            locked: false,
-          };
-        });
-        setPieces(randomized);
-      });
-    };
+  splitImage(imageSrc, gridSize).then((sliced) => {
+    const positions = [];
+
+    const margin = 20;
+    const spacing = 10;
+
+    // total number of pieces
+    const total = sliced.length;
+
+    // distribute pieces equally around the 4 sides
+    const perSide = Math.ceil(total / 4);
+    let topCount = 0, bottomCount = 0, leftCount = 0, rightCount = 0;
+
+    const pieces = sliced.map((piece, index) => {
+      // Target position (correct spot)
+      const targetX = (piece.correctIndex % gridSize) * pieceWidth;
+      const targetY = Math.floor(piece.correctIndex / gridSize) * pieceHeight;
+
+      let x = 0, y = 0;
+
+      if (topCount < perSide) {
+        // top
+        x = margin + topCount * (pieceWidth + spacing);
+        y = targetY - pieceHeight - spacing - 30;
+        topCount++;
+      } else if (rightCount < perSide) {
+        // right
+        x = width + spacing + 30;
+        y = margin + rightCount * (pieceHeight + spacing);
+        rightCount++;
+      } else if (bottomCount < perSide) {
+        // bottom
+        x = margin + bottomCount * (pieceWidth + spacing);
+        y = height + spacing + 30;
+        bottomCount++;
+      } else {
+        // left
+        x = -pieceWidth - spacing - 30;
+        y = margin + leftCount * (pieceHeight + spacing);
+        leftCount++;
+      }
+
+      return {
+        ...piece,
+        width: pieceWidth,
+        height: pieceHeight,
+        x,
+        y,
+        targetX,
+        targetY,
+        locked: false,
+      };
+    });
+
+    setPieces(pieces);
+  });
+};
+
   }, [imageSrc, gridSize]);
 
   const handleDragEnd = (id, x, y) => {
