@@ -160,7 +160,11 @@ export default function PuzzleBoard() {
       />
 
       {pieces.map((piece) => (
-        <PuzzlePiece key={piece.id} piece={piece} onDragEnd={handleDragEnd} />
+        <PuzzlePiece
+          key={piece.id}
+          piece={{ ...piece, showBorder: !allLocked }}
+          onDragEnd={handleDragEnd}
+        />
       ))}
     </div>
   );
